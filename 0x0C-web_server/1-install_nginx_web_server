@@ -3,10 +3,20 @@
 # The installed server listens to port 80 (HTTP) for connection
 # And serves a default page index.html on the HTTP  GET request.
 
+#update the environmet
 sudo apt-get update -y
 
+# Install nginx
 sudo apt-get install nginx -y
 
+# listen to port 80
+sudo ufw 'Nginx HTTP'
+
+# craete a file that will be rendered
 echo 'Hello World!' > /var/www/html/index.html
 
-service nginx restart
+# testing nginx configuration
+sudo nginx -t 
+
+# restarting nginx
+sudo service nginx reload
