@@ -11,10 +11,10 @@ apt-get -y install haproxy
 # edit config file
 server_config=\
 "
-frontend  besthor_frontend
+frontend benson _frontend
         bind *:80
         mode http
-        default_backend Backend_backend
+        default_backend benson_backend
 backend Benson_backend
         balance roundrobin
         server 176572-web-01 54.144.151.15:80 check
