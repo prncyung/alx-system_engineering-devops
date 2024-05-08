@@ -1,43 +1,41 @@
 #!/usr/bin/python3
 """
-Exports to-do list information for a given employee ID to JSON format.
-
-This script takes an employee ID as a command-line argument and exports
-the corresponding user information and to-do list to a JSON file.
+A sript that, uses a REST API, for a given employee ID, returns
+information about his/her TODO list progress
+and exports data in the JSON format.
 """
 
 import json
 import requests
-import sys
+from sys import argv
 
 
 if __name__ == "__main__":
-    # Get the employee ID from the command-line argument
-    user_id = sys.argv[1]
 
-    # Base URL for the JSONPlaceholder API
-    url = "https://jsonplaceholder.typicode.com/"
+    sessionReq = requests.Session()
 
-    # Fetch user information using the provided employee ID
-    user = requests.get(url + "users/{}".format(user_id)).json()
-    username = user.get("username")
+    idEmp = argv[1]
+    idURL = 'https://jsonplaceholder.typicode.com/users/{}/todos'.format(idEmp)
+    nameURL = 'https://jsonplaceholder.typicode.com/users/{}'.format(idEmp)
 
-    # Fetch the to-do list for the employee using the provided employee ID
-    params = {"userId": user_id}
-    todos = requests.get(url + "todos", params).json()
+    employee = sessionReq.get(idURL)
+    employeeName = sessionReq.get(nameURL)
 
-    # Create a dictionary containing the user and to-do list information
-    data_to_export = {
-        user_id: [
+    json_req = employee.json()
+    usr = employeeName.json()['username']
+
+    totalTasks = []
+    updateUser = {}
+
+    for all_Emp in json_req:
+        totalTasks.append(
             {
-                "task": t.get("title"),
-                "completed": t.get("completed"),
-                "username": username
-            }
-            for t in todos
-        ]
-    }
+                "task": all_Emp.get('title'),
+                "completed": all_Emp.get('completed'),
+                "username": usr,
+            })
+    updateUser[idEmp] = totalTasks
 
-    # Write the data to a JSON file with the employee ID as the filename
-    with open("{}.json".format(user_id), "w") as jsonfile:
-        json.dump(data_to_export, jsonfile, indent=4)
+    file_Json = idEmp + ".json"
+    with open(file_Json, 'w') as f:
+        json.dump(updateUser, f)
