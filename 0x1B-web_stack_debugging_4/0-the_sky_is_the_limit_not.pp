@@ -1,46 +1,15 @@
-server {
-	listen 80 default_server;
-	listen [::]:80 ipv6only=on default_server;
-	server_name localhost 35.231.33.237;
+# This manuscript increases the amount of traffic an Nginx server can handle
 
-	root /home/ubuntu/AirBnB_clone_v4/web_dynamic;
-
-	location /hbnb_static/ {
-		alias /data/web_static/current/;
-		autoindex off;
-	}
-
-	index index.html index.htm index.nginx-debian.html;
-	rewrite ^/redirect_me https://github.com/besthor permanent;
-
-	error_page 404 /404.html;
-
-	location = /404.html {
-		root /usr/share/nginx/html;
-		internal;
-	}
-
-	location /airbnb-onepage/ {
-		include proxy_params;
-                proxy_pass http://0.0.0.0:5000/airbnb-onepage/;
-        }
-
-	location /airbnb-dynamic/number_odd_or_even/ {
-		include proxy_params;
-		proxy_pass http://0.0.0.0:5001/number_odd_or_even/;
-	}
-
-	location /static {
-        }
-
-	location /api/ {
-		include proxy_params;
-		proxy_pass http://0.0.0.0:5002/api/;
-	}	
-
-	location / {
-		include proxy_params;
-		proxy_pass http://0.0.0.0:5003/2-hbnb/;
-	}
-
+# Increase the ULIMIT of the default file
+file { 'fix-for-nginx':
+  ensure  => 'file',
+  path    => '/etc/default/nginx',
+  content => inline_template('<%= File.read("/etc/default/nginx").gsub(/15/, "4096") %>'),
 }
+
+# Restart Nginx
+-> exec { 'nginx-restart':
+  command => 'nginx restart',
+  path    => '/etc/init.d/',
+}
+
